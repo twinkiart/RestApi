@@ -4,10 +4,16 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class APITest {
@@ -15,7 +21,8 @@ public class APITest {
 
     @BeforeEach
     public void setup() {
-        RestAssured.baseURI = "https://petstore.swagger.io/v2/";
+        //RestAssured.baseURI = "https://petstore.swagger.io/v2/";
+        RestAssured.baseURI = "https://demoqa.com/Account/v1/";
     }
 
     @Test
@@ -53,4 +60,48 @@ public class APITest {
                 .body("type",equalTo("error"))
                 .body("message", equalTo("Pet not found"));
     }
+    @Test
+    public void newPetTest(){
+    Integer id = 998;
+    String name = "J";
+    String status = "sold";
+
+    Map<String,String> request = new HashMap<>();
+        request.put("id",id.toString());
+        request.put("name",name);
+        request.put("status",status);
+        given().contentType("application/json")
+                .body(request)
+                .when()
+                .post(baseURI + "pet/")
+                .then()
+                .log().all()
+                .time(lessThan(2000L))
+                .assertThat()
+                .statusCode(200)
+                .body("name",equalTo(name))
+                .body("status",equalTo(status))
+                .body("id",equalTo(id));
+    }
+    @Test
+    @DisplayName("Авторизация пользователя")
+    public void postUserACC(){
+        String userName = "TestAPI";
+        String password = "Twin_111!";
+
+        Map<String,String> requst = new HashMap<>();
+        requst.put("userName",userName);
+        requst.put("password",password);
+        given().contentType("application/json")
+                .body(requst)
+                .when()
+                .post(baseURI + "Authorized")
+                .then()
+                .log().all()
+                .time(lessThan(2000L))
+                .assertThat()
+                .statusCode(200);
+
+    }
+
 }
